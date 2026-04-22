@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>🎡 Wheel of Browser Fortune</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        
+        :root {
+            --gold: #ffd700;
+        }
+        
+        html {
+            height: 100%;
+            width: 100%;
+        }
+        
+        body {
+            width: 460px;
+            min-height: 580px;
+            max-height: 590px;
+            margin: 0;
+            padding: 15px;
+            font-family: 'Press Start 2P', system-ui;
+            background: linear-gradient(180deg, #0a0022, #1a0033);
+            color: #fff;
+            text-align: center;
+            overflow-y: auto;
+            overflow-x: hidden;
+            box-sizing: border-box;
+        }
+        
+        h1 {
+            font-size: 18px;
+            margin: 0 0 10px;
+            text-shadow: 0 0 10px var(--gold);
+            letter-spacing: 2px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        select, button {
+            font-family: 'Press Start 2P', system-ui;
+            padding: 8px 16px;
+            border: 3px solid var(--gold);
+            background: #220044;
+            color: #fff;
+            font-size: 12px;
+            cursor: pointer;
+            border-radius: 0;
+            box-shadow: 0 4px 0 #000;
+        }
+        
+        button:hover {
+            background: #440088;
+            transform: translateY(-2px);
+        }
+        
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #000;
+        }
+        
+        #wheel-container {
+            position: relative;
+            width: 400px;
+            height: 410px;
+            margin: 15px auto 20px;
+        }
+        
+        #wheel {
+            border: 12px solid #ffd700;
+            border-radius: 50%;
+            box-shadow: 
+                0 0 0 15px #220044,
+                0 0 30px 10px rgba(255, 215, 0, 0.6),
+                inset 0 0 40px rgba(255,255,255,0.3);
+        }
+        
+        #pointer {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 50px;
+            z-index: 20;
+            filter: drop-shadow(0 0 10px #ff0000);
+            animation: bob 0.8s infinite alternate ease-in-out;
+        }
+        
+        @keyframes bob {
+            from { transform: translateX(-50%) rotate(-8deg); }
+            to { transform: translateX(-50%) rotate(8deg); }
+        }
+        
+        #status {
+            min-height: 28px;
+            font-size: 13px;
+            margin: 5px 0;
+            color: #ffd700;
+        }
+        
+        #result {
+            display: none;
+            background: rgba(0, 0, 0, 0.85);
+            border: 6px solid var(--gold);
+            padding: 20px;
+            margin: 15px auto;
+            max-width: 420px;
+            border-radius: 0;
+            box-shadow: 0 0 30px var(--gold);
+        }
+        
+        #landed-title {
+            font-size: 16px;
+            color: #ffd700;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        #prize-banner {
+            margin: 15px 0;
+            padding: 18px;
+            font-size: 22px;
+            font-weight: bold;
+            border: 4px solid;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 3px 3px 0 #000;
+            animation: prizePop 0.6s ease;
+        }
+        
+        #prize-banner.bankrupt {
+            background: #880000;
+            border-color: #ff0000;
+            color: #fff;
+        }
+        
+        #prize-banner:not(.bankrupt) {
+            background: linear-gradient(45deg, #ffd700, #ffeb3b);
+            border-color: #00ff00;
+            color: #220044;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        
+        .nav-buttons button {
+            flex: 1;
+            padding: 14px;
+            font-size: 14px;
+        }
+        
+        .footer {
+            font-size: 10px;
+            opacity: 0.6;
+            margin-top: 15px;
+        }
+
+        /* Nicer scrollbar */
+        body::-webkit-scrollbar {
+            width: 6px;
+        }
+        body::-webkit-scrollbar-thumb {
+            background: #ffd700;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎰 WHEEL OF BROWSER FORTUNE 🎰</h1>
+    
+    <div class="controls">
+        <select id="mode">
+            <option value="bookmarks">📚 BOOKMARKS</option>
+            <option value="history">🕒 HISTORY (last 30 days)</option>
+        </select>
+        
+        <button id="load-btn">🔄 LOAD WHEEL</button>
+        <button id="spin-btn" style="background:#00cc00; font-size:18px; padding:12px 32px;">SPIN THE WHEEL!</button>
+    </div>
+    
+    <div id="wheel-container">
+        <canvas id="wheel" width="400" height="410"></canvas>
+        <div id="pointer">▼</div>
+    </div>
+    
+    <div id="status">Loading your bookmarks...</div>
+    
+    <!-- RESULT BANNER -->
+    <div id="result">
+        <div style="font-size:13px; margin-bottom:8px; opacity:0.8;">YOU LANDED ON:</div>
+        <div id="landed-title"></div>
+        <div id="landed-url" style="font-size:11px; word-break:break-all; opacity:0.7; margin-bottom:15px;"></div>
+        
+        <div id="prize-banner">
+            <span id="prize-text"></span>
+        </div>
+        
+        <div class="nav-buttons">
+            <button id="navigate-btn">🚀 NAVIGATE TO PAGE</button>
+            <button id="spin-again-btn">🎡 SPIN AGAIN</button>
+        </div>
+    </div>
+    
+    <div class="footer">
+        Wheel of Fortune Edition • Bookmarks or History • Random Prizes!<br>
+        Max 20 segments • Long URLs shortened on wheel
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

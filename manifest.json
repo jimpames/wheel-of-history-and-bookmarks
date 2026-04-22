@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "🎡 Wheel of Browser Fortune",
+  "version": "1.0",
+  "description": "Spin your bookmarks or history like Wheel of Fortune + random prizes!",
+  "permissions": ["bookmarks", "history", "tabs"],
+  "action": {
+    "default_popup": "popup.html"
+  }
+}
