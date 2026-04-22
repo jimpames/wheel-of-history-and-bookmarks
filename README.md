@@ -1,3 +1,14 @@
+Wheel of history and bookmarks
+
+
+GPL3
+
+by n2nhu labs
+
+Video Demo
+https://youtube.com/shorts/4LAp8HjN00s?feature=share
+
+
 put all these files in a FOLDER
 
 Open Chrome → go to chrome://extensions/ → turn on Developer mode (top right) → click Load unpacked → select your folder.
